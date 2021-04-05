@@ -1,0 +1,7 @@
+{
+    "python.autoComplete.extraPaths": [
+        "/home/fred/simulation_ws/devel/lib/python3/dist-packages",
+        "/home/fred/catkin_ws/devel/lib/python3/dist-packages",
+        "/opt/ros/noetic/lib/python3/dist-packages"
+    ]
+}

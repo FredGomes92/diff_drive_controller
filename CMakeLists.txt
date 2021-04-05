@@ -8,6 +8,7 @@ project(diff_drive_controller)
 ## if COMPONENTS list like find_package(catkin REQUIRED COMPONENTS xyz)
 ## is used, also find other catkin packages
 find_package(catkin REQUIRED COMPONENTS
+  controller_manager
   roscpp
   rospy
 )
@@ -115,19 +116,21 @@ catkin_package(
 ## Specify additional locations of header files
 ## Your package locations should be listed before other locations
 include_directories(
-# include
+  include
   ${catkin_INCLUDE_DIRS}
 )
 
 ## Declare a C++ library
-# add_library(${PROJECT_NAME}
-#   src/${PROJECT_NAME}/diff_drive_controller.cpp
-# )
+add_library(i2c src/i2c.cpp)
 
-## Add cmake target dependencies of the library
-## as an example, code may need to be generated before libraries
-## either from message generation or dynamic reconfigure
-# add_dependencies(${PROJECT_NAME} ${${PROJECT_NAME}_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+add_executable(my_bot_hw_interface src/robot_hw_interface_node.cpp)
+
+
+add_dependencies(i2c ${i2c_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
+
+target_link_libraries(my_bot_hw_interface
+    i2c ${catkin_LIBRARIES}
+)
 
 ## Declare a C++ executable
 ## With catkin_make all packages are built within a single CMake context
