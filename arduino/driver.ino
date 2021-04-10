@@ -22,7 +22,7 @@ double set_point_pos, set_point_vel = 0, temp = 0.0, vel = 0.0, pos = 0.0;
 
 // PID
 // double kp =1, ki =20 , kd =0;
-// double input = 0, output = 0, setpoint = 0;
+double input = 0, output = 0, setpoint = 0;
 
 // PID myPID(&input, &output, &setpoint, kp, ki, kd,DIRECT);
 
@@ -75,51 +75,33 @@ void SetPwm(float out)
 
 }
 
-byte buff[5] = {'p', 1,'v',2,255};
-
 void OnRequestEvent()
 {
-   uint8_t buff[4];
+  int8_t pos;
 
-   //double vel_ = 10;
-   //double pos_ = 100;
+  pos = (360.0*(enc_pos - last_enc_pos)) / 330.0; // change in position -> º
 
-   int tmp = (unsigned long int)abs((vel*100));
+  last_enc_pos = enc_pos;
 
-  buff[0] = abs(tmp) >> 8; // MSB
-  buff[1] = abs(tmp); // LSB
-  buff[2] = abs((int)(pos)) >> 8; // MSB
-  buff[3] = abs((int)(pos));
-
-  if (vel < 0)
-    buff[0] = buff[0] | 0b10000000;
-
-  // Serial.println("Tmp: " + String(tmp) + "Vel: " + String(vel) + "buff[0]: " + String(buff[0]) + " buff[1]: " + String(buff[1]));
-
-  Wire.write(buff, sizeof(buff));
-
+  Write.write(s);
 
 }
 
-// this function is executed everytime it receives data from the master
-// first 2 bytes -> velocity setpoint , last 2 bytes -> position setpoint
 void OnReceiveEvent(int c)
 {
-  uint8_t data[4];
+  uint8_t buff[2];
 
-  for (int i = 0; i < 4; i ++)
+  for (int i = 0; i < 2; ++i)
   {
-    data[i] = Wire.read();
-    //Serial.println("Data[" + String(i) + "] = " + String(data[i]));
+    buff[i] =Wire.read();
   }
 
-  int sign = (data[0] & 0b10000000) == 0b10000000 ? -1 : 1;
+  setpoint = (double)((buff[0])| (buff[1] >> 8));
 
-  set_point_vel = (((((data[0] & 0b01111111) << 8) | (data[1]))/100.0))*sign;
+  Serial.println((uint8_t)buff[0]);
+  Serial.println((uint8_t)buff[1]);
+  Serial.println("SetPoint: " + String(setpoint));
 
-  // set_point_pos = (double)(data[2] | data[3] >> 8);
-
-  Serial.println("Set_point_vel: " + String(set_point_vel));
 
 }
 // encoder pulses -> 0 to 3300
@@ -142,32 +124,20 @@ void PulseCnt()
 
 void loop() {
 
-  now = millis();
-  int timeChange = (now - lastTime);
+    now = millis();
+    int td = (now - lastTime);
 
-  pos = ((enc_pos*360) / PPR) % 360;
+    if (td >= 500)
+    {
+        input = (360.0*1000*(enc_pos-last_enc_pos))/(330.0*(now - lastTime));
 
-  if (timeChange >= 100) // calculate vel every 500 ms
-  {
-    // Serial.println("Pos: " + String(enc_pos) + " Last_pos: " + String(last_enc_pos));
-    // Serial.println("Now: " + String(now) + "LastTime : " + String(lastTime));
+        lastTime = now;
+        last_enc_pos = enc_pos;
 
-    temp = ((enc_pos - last_enc_pos)*360.0*1000) / (PPR * (now - lastTime));
+        Serial.println("Vel: " + String(input));
+    }
 
-    if (abs(enc_pos) > abs(last_enc_pos)) // to save encoderPos at boundary i.e., after max limit it will take the previous value. Then lastPos will be greater than encoderpos
-      vel =temp;
-
-    if (enc_pos == last_enc_pos)
-      vel = 0;
-
-    lastTime = now;
-    last_enc_pos = enc_pos;
-
-    // Serial.println("Vel: " + String(vel));
-    // Serial.println("EncPos: " + String(enc_pos) + "LastEncPos: " + String(last_enc_pos));
-
-    Serial.println(pos);
 
   }
-  SetPwm(set_point_vel);
+  // SetPwm(setpoint);
 }

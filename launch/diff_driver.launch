@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<launch>
+
+  <rosparam file="$(find diff_drive_controller)/config/controllers.yaml" command="load"/>
+  <rosparam file="$(find diff_drive_controller)/config/joint_limits.yaml" command="load"/>
+
+  <arg name="model" default="$(find diff_drive_controller)/urdf/my_bot.urdf.xacro"/>
+  <arg name="gui" default="true" />
+
+  <param name="robot_description" command="$(find xacro)/xacro $(arg model)" />
+  <param name="use_gui" value="$(arg gui)"/>
+
+  <node name="robot_hw_interface_node" pkg="diff_drive_controller" type="my_bot_hw_interface" output="screen"/>
+
+  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
+  </node>
+
+  <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen"
+        args="
+        	/single_joint_actuator/joints_update
+          /single_joint_actuator/joint1_velocity_controller
+        "/>
+</launch>
