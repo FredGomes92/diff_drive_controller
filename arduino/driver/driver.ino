@@ -81,9 +81,13 @@ void OnRequestEvent()
 
   pos = (360.0*(enc_pos - last_enc_pos)) / 330.0; // change in position -> º
 
+  Serial.println("enc_pos: " + String(enc_pos) + " last_enc_pos: " + String(last_enc_pos));
+  Serial.println("Pos: " + String(pos));
+
   last_enc_pos = enc_pos;
 
-  Write.write(s);
+  Wire.write(pos);
+
 
 }
 
@@ -104,22 +108,16 @@ void OnReceiveEvent(int c)
 
 
 }
-// encoder pulses -> 0 to 3300
 void PulseCnt()
 {
-
-  if (enc_pos > (PPR*10) || enc_pos < -(PPR*10))
+   if (enc_pos >= (PPR*10) || enc_pos <= -(PPR*10))
       enc_pos = 0;
 
   if (PINB & 0b0000001) enc_pos --;  // if (digitalRead(ENC_PHB) == HIGH) enc_pos --;
   else enc_pos ++; // if (digitalRead(ENC_PHB) == LOW) enc_pos ++;
 
 
-  //if (enc_pos > PPR) enc_pos = 0;
-  //else if (enc_pos < 0) enc_pos = PPR;
-
   // Serial.println(enc_pos);
-
 }
 
 void loop() {
@@ -127,17 +125,15 @@ void loop() {
     now = millis();
     int td = (now - lastTime);
 
-    if (td >= 500)
+    if (td >= 100)
     {
         input = (360.0*1000*(enc_pos-last_enc_pos))/(330.0*(now - lastTime));
 
         lastTime = now;
         last_enc_pos = enc_pos;
 
-        Serial.println("Vel: " + String(input));
+        // Serial.println("Vel: " + String(input));
     }
-
-
-  }
-  // SetPwm(setpoint);
-}
+    SetPwm(0);
+ }
+  
