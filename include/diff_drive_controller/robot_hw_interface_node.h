@@ -39,9 +39,8 @@ protected:
 
     double left_motor_pos = 0.0, right_motor_pos = 0.0;
 
-    i2c::I2C left_motor = i2c::I2C(1,10);
-    i2c::I2C right_motor = i2c::I2C(1,11);
-
+    i2c::I2C right_motor = i2c::I2C(1,10);
+    i2c::I2C left_motor = i2c::I2C(1,11);
 
     ros::NodeHandle nh_;
     ros::Timer async_time;

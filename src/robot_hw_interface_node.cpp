@@ -54,24 +54,38 @@ void MyRobotHWInterface::update(const ros::TimerEvent& te)
 }
 void MyRobotHWInterface::read()
 {
-    // uint8_t buff[4];
+    uint8_t rbuff[1];
+    int x;
 
-    // left_motor.readBytes(buff, 4);
+    right_motor.readBytes(rbuff,1);
+    x=(int8_t)rbuff[0];
+    right_motor_pos += angles::from_degrees((double)x);
+    joint_position_[0]=right_motor_pos;
 
-    // int sign = (buff[0] & 0b10000000) == 0b10000000 ? -1 : 1;
-    // double joint_velocity = (double)(((((buff[0] & 0b01111111) << 8) | (buff[1]))/100.0))*sign;
-
-    // //double joint_velocity = (double)((buff[0] >> 8) | buff[1]);
-
-    // joint_velocity_ = angles::from_degrees(joint_velocity);
-
-    // double joint_position = (double)((buff[2] >> 8) | buff[3]);
-    // joint_position_ = angles::from_degrees((double)((buff[2] >> 8) | buff[3]));
+    ROS_INFO("x=%d ",x);
 }
 void MyRobotHWInterface::write(ros::Duration elapsed_time)
 {
 
     velocity_joint_saturation_interface_.enforceLimits(elapsed_time);
+
+    uint8_t wbuff[2];
+
+    int velocity,result;
+
+    velocity=(int)angles::to_degrees(joint_velocity_command_[0]);
+	wbuff[0]=velocity;
+    wbuff[1]=velocity >> 8;
+
+    ROS_INFO("joint_velocity_command_[0]=%.2f velocity=%d  wbuff[0]=%d wbuff[1]=%d", joint_velocity_command_[0],velocity,wbuff[0],wbuff[1]);
+
+    if(right_prev_cmd!=velocity)
+    {
+	    result = right_motor.writeData(wbuff,2);
+
+        ROS_INFO("Writen successfully result=%d", result);
+	    right_prev_cmd = velocity;
+    }
 
 }
 
