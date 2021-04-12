@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 3.0.2)
-project(diff_drive_controller)
+project(my_diff_drive_controller)
 
 ## Compile as C++11, supported in ROS Kinetic and newer
 # add_compile_options(-std=c++11)
@@ -11,6 +11,9 @@ find_package(catkin REQUIRED COMPONENTS
   controller_manager
   roscpp
   rospy
+  std_msgs
+  std_srvs
+  control_msgs
 )
 
 ## System dependencies are found with CMake's conventions

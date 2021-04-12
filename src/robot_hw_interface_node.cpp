@@ -17,7 +17,7 @@ MyRobotHWInterface::~MyRobotHWInterface(){}
 
 void MyRobotHWInterface::init()
 {
-    for ( int i = 0; i < 1; ++i)
+    for ( int i = 0; i < 2; ++i)
     {
         // create a joint interface
         hardware_interface::JointStateHandle jointStateHandle(joint_name_[i], &joint_position_[i], &joint_velocity_[i], &joint_effort_[i]);

@@ -13,7 +13,7 @@
     <material name="grey">
 	    <color rgba="0.5 0.5 0.5 1"/>
     </material>
-    
+
     <material name="black">
       <color rgba="0.0 0.0 0.0 1.0"/>
     </material>
@@ -51,7 +51,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0.0 0.0 0.0"/>
       <geometry>
-        <mesh filename="package://my_bot_new/stl/chassis.stl" scale="0.001 0.001 0.001"/> 
+        <mesh filename="package://my_bot_new/stl/chassis.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="white"/>
     </visual>
@@ -61,7 +61,7 @@
         <mesh filename="package://my_bot_new/stl/chassis.stl" scale="0.001 0.001 0.001" />
       </geometry>
     </collision>
-    </link>   
+    </link>
 
     <joint name="right_wheel_joint" type="continuous">
         <origin xyz="0.150 0.100 0.0" rpy="0 0 1.5707963268" />
@@ -74,7 +74,7 @@
     <visual>
       <origin xyz="0.0 0.0 0.0" rpy="0 1.5707963268 0" />
       <geometry>
-        <mesh filename="package://my_bot_new/stl/wheel.stl" scale="0.001 0.001 0.001"/> 
+        <mesh filename="package://my_bot_new/stl/wheel.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="grey"/>
     </visual>
@@ -84,8 +84,8 @@
         <mesh filename="package://my_bot_new/stl/wheel.stl" scale="0.001 0.001 0.001" />
       </geometry>
     </collision>
-    </link>   
-    
+    </link>
+
     <joint name="left_wheel_joint" type="continuous">
         <origin xyz="0.150 -0.100 0.0" rpy="0 0 1.5707963268" />
         <parent link="base_plate" />
@@ -98,7 +98,7 @@
       <origin xyz="-0.035 0.0 0.0" rpy="0 1.5707963268 0" />
 
       <geometry>
-        <mesh filename="package://my_bot_new/stl/wheel.stl" scale="0.001 0.001 0.001"/> 
+        <mesh filename="package://my_bot_new/stl/wheel.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="grey"/>
     </visual>
@@ -108,8 +108,8 @@
         <mesh filename="package://my_bot_new/stl/wheel.stl" scale="0.001 0.001 0.001" />
       </geometry>
     </collision>
-    </link>   
-    
+    </link>
+
     <!-- joint name="laser_joint" type="fixed">
         <origin xyz="0 0.040 0.090" rpy="0 0 1.5708" />
         <parent link="base_plate" />
@@ -120,7 +120,7 @@
     <visual>
       <origin rpy="0 0 -1.5708" xyz="0.084 -0.242 -0.098"/>
       <geometry>
-        <mesh filename="package://mobile_robot_autonomous_navigation/stl/RpLidar.stl" scale="0.001 0.001 0.001"/> 
+        <mesh filename="package://mobile_robot_autonomous_navigation/stl/RpLidar.stl" scale="0.001 0.001 0.001"/>
       </geometry>
       <material name="blue"/>
     </visual>
