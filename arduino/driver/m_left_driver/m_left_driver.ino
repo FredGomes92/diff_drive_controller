@@ -5,8 +5,8 @@
 
 // M1 motor
 #define M1_OUT 10
-#define IN1 7 // to define CW and CCW directions
-#define IN2 8
+#define IN3 7 // to define CW and CCW directions
+#define IN4 8
 
 // Encoder
 #define ENC_PHA 3
@@ -18,29 +18,29 @@ volatile long enc_pos, last_enc_pos = 0;
 unsigned int long lastTime, now;
 
 
-double set_point_pos, set_point_vel = 0, temp = 0.0, vel = 0.0, pos = 0.0;
-
 // PID
-// double kp =1, ki =20 , kd =0;
+double kp =1, ki =20 , kd =0;
 double input = 0, output = 0, setpoint = 0;
 
-// PID myPID(&input, &output, &setpoint, kp, ki, kd,DIRECT);
+PID myPID(&input, &output, &setpoint, kp, ki, kd,DIRECT);
+
+float pwm = 0.0;
 
 
 void setup() {
 
   pinMode(M1_OUT, OUTPUT);
-  pinMode(IN1, OUTPUT);
-  pinMode(IN2, OUTPUT);
+  pinMode(IN3, OUTPUT);
+  pinMode(IN4, OUTPUT);
 
   // PID
-  // myPID.SetMode(AUTOMATIC);
-  // myPID.SetSampleTime(1);
-  // myPID.SetOutputLimits(-255, 255);
+  myPID.SetMode(AUTOMATIC);
+  myPID.SetSampleTime(1);
+  myPID.SetOutputLimits(-255, 255);
 
 
   // I2C
-  Wire.begin(10); // configure slave in the address #10
+  Wire.begin(11); // configure slave in the address #10
   Wire.onRequest(OnRequestEvent); // data request to slave
   Wire.onReceive(OnReceiveEvent); // data received by slave
 
@@ -62,13 +62,13 @@ void SetPwm(float out)
 {
   if (out > 0) //CW
   {
-    digitalWrite(IN1, HIGH);
-    digitalWrite(IN2, LOW);
+    digitalWrite(IN3, HIGH);
+    digitalWrite(IN4, LOW);
   }
   else //CCW
   {
-    digitalWrite(IN1, LOW);
-    digitalWrite(IN2, HIGH);
+    digitalWrite(IN3, LOW);
+    digitalWrite(IN4, HIGH);
   }
   analogWrite(M1_OUT, abs(out));
 
@@ -81,8 +81,8 @@ void OnRequestEvent()
 
   pos = (360.0*(enc_pos - last_enc_pos)) / 330.0; // change in position -> º
 
-  Serial.println("enc_pos: " + String(enc_pos) + " last_enc_pos: " + String(last_enc_pos));
-  Serial.println("Pos: " + String(pos));
+  // Serial.println("enc_pos: " + String(enc_pos) + " last_enc_pos: " + String(last_enc_pos));
+  // Serial.println("Pos: " + String(pos));
 
   last_enc_pos = enc_pos;
 
@@ -120,6 +120,11 @@ void PulseCnt()
   // Serial.println(enc_pos);
 }
 
+float mapPwm(float x, float out_min, float out_max)
+{
+  return x * (out_max - out_min) + out_min;
+}
+
 void loop() {
 
     now = millis();
@@ -134,6 +139,12 @@ void loop() {
 
         // Serial.println("Vel: " + String(input));
     }
-    SetPwm(0);
+    myPID.Compute();                                    // calculate new output
+    SetPwm(output);                                     // drive L298N H-Bridge module
+    delay(10);
+    Serial.println("setpoint: " + String(setpoint) + " pwm: " + String(output));
+    SetPwm(pwm);
  }
+
+
   
