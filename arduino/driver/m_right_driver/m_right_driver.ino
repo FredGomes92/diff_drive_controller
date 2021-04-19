@@ -14,13 +14,13 @@
 
 #define PPR 330 // pulses per rotation
 
-volatile long enc_pos, last_enc_pos = 0;
+volatile long enc_pos, last_enc_pos = 0, last_encpos = 0;
 unsigned int long lastTime, now;
 
 
 // PID
-double kp =1, ki =20 , kd =0;
-double input = 0, output = 0, setpoint = 0;
+double kp =0.3, ki =0.5 , kd =0.0;
+double input = 0, output = 0, setpoint = 0.0;
 
 PID myPID(&input, &output, &setpoint, kp, ki, kd,DIRECT);
 
@@ -35,8 +35,8 @@ void setup() {
 
   // PID
   myPID.SetMode(AUTOMATIC);
-  myPID.SetSampleTime(1);
   myPID.SetOutputLimits(-255, 255);
+  myPID.SetSampleTime(100);
 
 
   // I2C
@@ -84,7 +84,7 @@ void OnRequestEvent()
   // Serial.println("enc_pos: " + String(enc_pos) + " last_enc_pos: " + String(last_enc_pos));
   // Serial.println("Pos: " + String(pos));
 
-  last_enc_pos = enc_pos;
+  last_encpos = enc_pos;
 
   Wire.write(pos);
 
@@ -93,6 +93,9 @@ void OnRequestEvent()
 
 void OnReceiveEvent(int c)
 {
+
+  Serial.println("OnReceivedEvent");
+
   uint8_t buff[2];
 
   for (int i = 0; i < 2; ++i)
@@ -100,11 +103,16 @@ void OnReceiveEvent(int c)
     buff[i] =Wire.read();
   }
 
-  setpoint = (double)((buff[0])| (buff[1] >> 8));
+   // uint8_t a,b;
+   // a = Wire.read();
+   // b = Wire.read();
+   // setpoint= (double)((b<<8)|a);
 
-  Serial.println((uint8_t)buff[0]);
-  Serial.println((uint8_t)buff[1]);
-  Serial.println("SetPoint: " + String(setpoint));
+  setpoint = (double)((buff[0])| (buff[1] << 8));
+
+  //Serial.println((uint8_t)buff[0]);
+  //Serial.println((uint8_t)buff[1]);
+  //Serial.println("SetPoint(received): " + String(setpoint));
 
 
 }
@@ -113,37 +121,47 @@ void PulseCnt()
    if (enc_pos >= (PPR*10) || enc_pos <= -(PPR*10))
       enc_pos = 0;
 
-  if (PINB & 0b0000001) enc_pos --;  // if (digitalRead(ENC_PHB) == HIGH) enc_pos --;
-  else enc_pos ++; // if (digitalRead(ENC_PHB) == LOW) enc_pos ++;
+  if (PINB & 0b0000001) enc_pos ++;  // if (digitalRead(ENC_PHB) == HIGH) enc_pos --;
+  else enc_pos --; // if (digitalRead(ENC_PHB) == LOW) enc_pos ++;
 
 
   // Serial.println(enc_pos);
 }
 
-float mapPwm(float x, float out_min, float out_max)
-{
-  return x * (out_max - out_min) + out_min;
-}
+
 
 void loop() {
 
     now = millis();
     int td = (now - lastTime);
 
-    if (td >= 100)
+    float tmp;
+
+    if (td >= 200)
     {
-        input = (360.0*1000*(enc_pos-last_enc_pos))/(330.0*(now - lastTime));
+      
+        tmp = (360.0*1000*(enc_pos-last_enc_pos))/(330.0*(now - lastTime)) * -1 ;
+
+        if (abs(enc_pos) > abs(last_enc_pos))
+        {
+          input = tmp;
+        }
+        if (abs(enc_pos) == abs(last_enc_pos))
+        {
+          input = 0.0;
+        }
+
+        //Serial.println("enc_pos: " + String(enc_pos) + " enc_last_pos: " + String(last_enc_pos) + " Vel: " + String(input));
+
 
         lastTime = now;
         last_enc_pos = enc_pos;
 
-        // Serial.println("Vel: " + String(input));
     }
 
     myPID.Compute();                                    // calculate new output
     SetPwm(output);                                     // drive L298N H-Bridge module
-    delay(10);
-    Serial.println("setpoint: " + String(setpoint) + " pwm: " + String(output));
-    SetPwm(pwm);
+    delay(50);
+    Serial.println("setpoint: " + String(setpoint) + " input: " + String(input) + " output: " + String(output));
  }
   
