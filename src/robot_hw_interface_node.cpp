@@ -62,7 +62,15 @@ void MyRobotHWInterface::read()
     right_motor_pos += angles::from_degrees((double)x);
     joint_position_[0]=right_motor_pos;
 
-    ROS_INFO("x=%d ",x);
+    left_motor.readBytes(rbuff,1);
+    x=(int8_t)rbuff[0];
+    left_motor_pos += angles::from_degrees((double)x);
+    joint_position_[1]=left_motor_pos;
+
+    //ROS_INFO("joint_psition[0]: %f, joint_psition[01]: %f", joint_position_[0], joint_position_[1]);
+
+
+
 }
 void MyRobotHWInterface::write(ros::Duration elapsed_time)
 {
@@ -85,6 +93,20 @@ void MyRobotHWInterface::write(ros::Duration elapsed_time)
 
         ROS_INFO("Writen successfully result=%d", result);
 	    right_prev_cmd = velocity;
+    }
+
+    velocity=(int)angles::to_degrees(joint_velocity_command_[1]);
+	wbuff[0]=velocity;
+    wbuff[1]=velocity >> 8;
+
+    ROS_INFO("joint_velocity_command_[1]=%.2f velocity=%d  wbuff[0]=%d wbuff[1]=%d", joint_velocity_command_[0],velocity,wbuff[0],wbuff[1]);
+
+    if(lef_prev_cmd!=velocity)
+    {
+	    result = left_motor.writeData(wbuff,2);
+
+        ROS_INFO("Writen successfully result=%d", result);
+	    lef_prev_cmd = velocity;
     }
 
 }
