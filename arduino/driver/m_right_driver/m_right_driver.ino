@@ -16,10 +16,11 @@
 
 volatile long enc_pos, last_enc_pos = 0, last_encpos = 0;
 unsigned int long lastTime, now;
+double outout = 0.0;
 
 
 // PID
-double kp =0.3, ki =0.5 , kd =0.0;
+double kp =0.6, ki =0.6 , kd =0.0;
 double input = 0, output = 0, setpoint = 0.0;
 
 PID myPID(&input, &output, &setpoint, kp, ki, kd,DIRECT);
@@ -40,7 +41,7 @@ void setup() {
 
 
   // I2C
-  Wire.begin(10); // configure slave in the address #10
+  Wire.begin(11); // configure slave in the address #11
   Wire.onRequest(OnRequestEvent); // data request to slave
   Wire.onReceive(OnReceiveEvent); // data received by slave
 
@@ -79,10 +80,10 @@ void OnRequestEvent()
 {
   int8_t pos;
 
-  pos = (360.0*(enc_pos - last_enc_pos)) / 330.0; // change in position -> º
+  pos = ((360.0*(enc_pos - last_encpos)) / 330.0); // change in position -> º ... -1 because the direction is the opposite of the left motor
 
-  // Serial.println("enc_pos: " + String(enc_pos) + " last_enc_pos: " + String(last_enc_pos));
-  // Serial.println("Pos: " + String(pos));
+  //Serial.println("enc_pos: " + String(enc_pos) + " last_enc_pos: " + String(last_enc_pos));
+  //Serial.println("Pos: " + String(pos));
 
   last_encpos = enc_pos;
 
@@ -93,8 +94,6 @@ void OnRequestEvent()
 
 void OnReceiveEvent(int c)
 {
-
-  Serial.println("OnReceivedEvent");
 
   uint8_t buff[2];
 
@@ -128,7 +127,21 @@ void PulseCnt()
   // Serial.println(enc_pos);
 }
 
+float vel_to_volt(float vel)
+{
 
+  //Y = mx + b --> Y = 0.24566474*x + 155
+
+  float offset = 10;
+
+  if (vel > 0)
+    return 0.24566474*vel + 185; //155
+  else if (vel < 0)
+    return 0.24566474*vel - 185;
+  else
+    return 0.0;
+  
+}
 
 void loop() {
 
@@ -137,19 +150,19 @@ void loop() {
 
     float tmp;
 
-    if (td >= 200)
+    if (td >= 100)
     {
       
-        tmp = (360.0*1000*(enc_pos-last_enc_pos))/(330.0*(now - lastTime)) * -1 ;
+        input = (360.0*1000*(enc_pos-last_enc_pos))/(330.0*(now - lastTime)) * -1 ;
 
-        if (abs(enc_pos) > abs(last_enc_pos))
+        /*if (abs(enc_pos) > abs(last_enc_pos))
         {
           input = tmp;
         }
         if (abs(enc_pos) == abs(last_enc_pos))
         {
           input = 0.0;
-        }
+        }*/
 
         //Serial.println("enc_pos: " + String(enc_pos) + " enc_last_pos: " + String(last_enc_pos) + " Vel: " + String(input));
 
@@ -157,10 +170,12 @@ void loop() {
         lastTime = now;
         last_enc_pos = enc_pos;
 
-    }
+        myPID.Compute();                                    // calculate new output
+        SetPwm(output);            // drive L298N H-Bridge module
 
-    myPID.Compute();                                    // calculate new output
-    SetPwm(output);                                     // drive L298N H-Bridge module
+    }
+    if (setpoint > 500) setpoint = 0.0;
+
     delay(50);
     Serial.println("setpoint: " + String(setpoint) + " input: " + String(input) + " output: " + String(output));
  }
