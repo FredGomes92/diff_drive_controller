@@ -19,7 +19,7 @@ unsigned int long lastTime, now;
 
 
 // PID
-double kp =0.2, ki =0.3 , kd =0.0;
+double kp =0.4, ki =0.5 , kd =0.0;
 double input = 0, output = 0, setpoint = 0.0;
 double outout = 0.0;
 
@@ -146,7 +146,7 @@ void loop() {
     now = millis();
     int td = (now - lastTime);
 
-    if (td >= 500)
+    if (td >= 100)
     {
         input = (360.0*1000*(enc_pos-last_enc_pos))/(330.0*(now - lastTime));
 
@@ -156,18 +156,19 @@ void loop() {
         //Serial.println("Vel: " + String(input));
     
 
-      myPID.Compute();      
+      myPID.Compute();
+
+      if (setpoint > 500) setpoint = 0.0;
+      if (setpoint == 0) output = 0;
+      Serial.println("setpoint: " + String(setpoint) + " input: " + String(input) + " output: " + String(output));
+      
   
       
       SetPwm(output);            // drive L298N H-Bridge module
   
     }    
     
-    if (setpoint > 500) setpoint = 0.0;
-    Serial.println("setpoint: " + String(setpoint) + " input: " + String(input) + " output: " + String(output) + " OUT: " + String(outout));
-
-    delay(50);
- }
+}
 
 
   
