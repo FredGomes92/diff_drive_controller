@@ -9,6 +9,4 @@
 - Boost converter (to provide 6V to the motors)
 
 
-
-
-![alt text](http://url/to/img.png)
+![alt text](https://github.com/FredGomes92/diff_drive_controller/blob/master/imgs/side_view.jpg)
