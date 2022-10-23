@@ -79,34 +79,34 @@ void MyRobotHWInterface::write(ros::Duration elapsed_time)
 
     uint8_t wbuff[2];
 
-    int velocity,result;
+    int velocity_left, velocity_right,result;
 
-    velocity=(int)angles::to_degrees(joint_velocity_command_[0]);
-	wbuff[0]=velocity;
-    wbuff[1]=velocity >> 8;
+    velocity_left=(int)angles::to_degrees(joint_velocity_command_[0]);
+	wbuff[0]=velocity_left;
+    wbuff[1]=velocity_left >> 8;
 
-    ROS_INFO("joint_velocity_command_[0]=%.2f velocity=%d  wbuff[0]=%d wbuff[1]=%d", joint_velocity_command_[0],velocity,wbuff[0],wbuff[1]);
+    ROS_INFO("joint_velocity_command_[0]=%.2f velocity_left=%d  wbuff[0]=%d wbuff[1]=%d", joint_velocity_command_[0],velocity_left,wbuff[0],wbuff[1]);
 
-    if(right_prev_cmd!=velocity)
+    if(right_prev_cmd!=velocity_left)
     {
 	    result = right_motor.writeData(wbuff,2);
 
         ROS_INFO("Writen successfully result=%d", result);
-	    right_prev_cmd = velocity;
+	    right_prev_cmd = velocity_left;
     }
 
-    velocity=(int)angles::to_degrees(joint_velocity_command_[1]);
-	wbuff[0]=velocity;
-    wbuff[1]=velocity >> 8;
+    velocity_right=(int)angles::to_degrees(joint_velocity_command_[1]);
+	wbuff[0]=velocity_right;
+    wbuff[1]=velocity_right >> 8;
 
-    ROS_INFO("joint_velocity_command_[1]=%.2f velocity=%d  wbuff[0]=%d wbuff[1]=%d", joint_velocity_command_[0],velocity,wbuff[0],wbuff[1]);
+    ROS_INFO("joint_velocity_command_[1]=%.2f velocity_right=%d  wbuff[0]=%d wbuff[1]=%d", joint_velocity_command_[1],velocity_right,wbuff[0],wbuff[1]);
 
-    if(lef_prev_cmd!=velocity)
+    if(lef_prev_cmd!=velocity_right)
     {
 	    result = left_motor.writeData(wbuff,2);
 
         ROS_INFO("Writen successfully result=%d", result);
-	    lef_prev_cmd = velocity;
+	    lef_prev_cmd = velocity_right;
     }
 
 }
