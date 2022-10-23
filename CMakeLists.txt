@@ -127,11 +127,16 @@ include_directories(
 add_library(i2c src/i2c.cpp)
 
 add_executable(my_bot_hw_interface src/robot_hw_interface_node.cpp)
+add_executable(read_wheels_position src/read_wheels_position.cpp)
+
 
 
 add_dependencies(i2c ${i2c_EXPORTED_TARGETS} ${catkin_EXPORTED_TARGETS})
 
 target_link_libraries(my_bot_hw_interface
+    i2c ${catkin_LIBRARIES}
+)
+target_link_libraries(read_wheels_position
     i2c ${catkin_LIBRARIES}
 )
 
