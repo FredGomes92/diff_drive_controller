@@ -12,8 +12,13 @@ find_package(catkin REQUIRED COMPONENTS
   roscpp
   rospy
   std_msgs
+  geometry_msgs
   std_srvs
+  actionlib_msgs
   control_msgs
+  message_generation
+  actionlib
+  
 )
 
 ## System dependencies are found with CMake's conventions
@@ -63,18 +68,22 @@ find_package(catkin REQUIRED COMPONENTS
 #   Service2.srv
 # )
 
-## Generate actions in the 'action' folder
-# add_action_files(
-#   FILES
+# Generate actions in the 'action' folder
+ add_action_files(
+  FILES
+  GoTo2DPose.action
 #   Action1.action
 #   Action2.action
-# )
+)
 
-## Generate added messages and services with any dependencies listed here
-# generate_messages(
-#   DEPENDENCIES
-#   std_msgs  # Or other packages containing msgs
-# )
+# Generate added messages and services with any dependencies listed here
+  generate_messages(
+    DEPENDENCIES
+    actionlib_msgs
+    std_msgs  # Or other packages containing msgs
+    geometry_msgs
+
+)
 
 ################################################
 ## Declare ROS dynamic reconfigure parameters ##
@@ -110,6 +119,7 @@ catkin_package(
 #  LIBRARIES diff_drive_controller
 #  CATKIN_DEPENDS roscpp rospy
 #  DEPENDS system_lib
+CATKIN_DEPENDS actionlib_msgs std_msgs geometry_msgs message_runtime 
 )
 
 ###########
@@ -128,6 +138,8 @@ add_library(i2c src/i2c.cpp)
 
 add_executable(my_bot_hw_interface src/robot_hw_interface_node.cpp)
 add_executable(read_wheels_position src/read_wheels_position.cpp)
+add_executable(go_to_pose_action_server src/GoToPosesActionServer.cpp)
+
 
 
 
@@ -138,6 +150,16 @@ target_link_libraries(my_bot_hw_interface
 )
 target_link_libraries(read_wheels_position
     i2c ${catkin_LIBRARIES}
+)
+
+target_link_libraries(go_to_pose_action_server
+    ${catkin_LIBRARIES}
+)
+
+add_dependencies(
+  go_to_pose_action_server
+  ${PROJECT_NAME}_EXPORTED_TARGETS}
+  ${catkin_EXPORTED_TARGETS}
 )
 
 ## Declare a C++ executable

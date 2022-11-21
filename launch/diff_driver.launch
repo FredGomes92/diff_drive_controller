@@ -13,6 +13,8 @@
   <node name="robot_hw_interface_node" pkg="my_diff_drive_controller" type="my_bot_hw_interface" output="screen">
     <remap from="/mobile_robot/mobile_base_controller/cmd_vel" to="/cmd_vel"/>
   </node>
+  <node name="go_to_poses_action_srv" pkg="my_diff_drive_controller" type="go_to_pose_action_server" output="screen">
+  </node>
 
   <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" >
   </node>

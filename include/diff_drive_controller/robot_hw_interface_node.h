@@ -12,6 +12,8 @@
 #include <angles/angles.h>
 
 #include "diff_drive_controller/i2c.h"
+#include "std_msgs/Int16.h"
+
 
 class MyRobotHWInterface : public hardware_interface::RobotHW
 {
@@ -39,8 +41,8 @@ protected:
 
     double left_motor_pos = 0.0, right_motor_pos = 0.0;
 
-    i2c::I2C right_motor = i2c::I2C(1,10);
     i2c::I2C left_motor = i2c::I2C(1,11);
+    i2c::I2C right_motor = i2c::I2C(1,10);
 
     ros::NodeHandle nh_;
     ros::Timer async_time;
@@ -52,5 +54,13 @@ protected:
 
 private:
     int lef_prev_cmd = 0, right_prev_cmd = 0;
+    void ComputePosition(int pos_left_inc, int pos_right_inc);
 
+    // encoders position
+    int left_pos = 0;
+    int right_pos = 0;
+    ros::Publisher pub_enc_pos_left;
+    ros::Publisher pub_enc_pos_right;
+    std_msgs::Int16 enc_pos_left;
+    std_msgs::Int16 enc_pos_right;
 };
