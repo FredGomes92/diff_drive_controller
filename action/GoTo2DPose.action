@@ -1,0 +1,9 @@
+#goal
+geometry_msgs/Point32[] points
+---
+#result
+string result
+---
+#feedback
+string feedback
+bool succeed

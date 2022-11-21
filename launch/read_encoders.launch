@@ -1,0 +1,8 @@
+<?xml version="1.0"?>
+<launch>
+
+
+  <node name="read_encoders" pkg="my_diff_drive_controller" type="read_wheels_position" output="screen">
+  </node>
+
+</launch>
